@@ -1,0 +1,38 @@
+# Ignore Python cache and compiled files
+**/__pycache__/
+*.pyc
+
+# Ignore Django migration files, except __init__.py
+**/migrations/*
+!**/migrations/__init__.py
+
+codepop_virtual_enviroment
+
+.idea
+node_modules
+
+# ignore direnv
+.envrc
+
+# for Mise
+mise.toml
+
+# ignore local VSCode settings
+.vscode/
+
+# ignore mypy cache
+.mypy_cache/
+
+# ignore virtual environments
+venv/
+.python-version
+
+# Ignore PyProject Config
+pyproject.toml
+
+# Ignore Gemini-cli
+.gemini/
+conductor/
+
+# Ignore continue
+.continue/
