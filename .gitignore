@@ -32,7 +32,6 @@ pyproject.toml
 
 # Ignore Gemini-cli
 .gemini/
-conductor/
 
 # Ignore continue
 .continue/
