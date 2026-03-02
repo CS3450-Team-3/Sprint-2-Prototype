@@ -31,3 +31,6 @@
 - [x] Task: Run end-to-end manual test of Visiting login (Home on Server B). (6cdac3f)
 - [x] Task: Verify terminal logs for inter-server communication. (6cdac3f)
 - [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md) (6cdac3f)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions (94a7b11)
