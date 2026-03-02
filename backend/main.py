@@ -9,11 +9,28 @@ import os
 import json
 import uuid
 import httpx
+import logging
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pathlib import Path
 from typing import Optional
+
+# Configuration from environment (set by run_nodes.py)
+NODE_ID = os.getenv("NODE_ID", "node_a")
+PORT = os.getenv("PORT", "8000")
+LOG_FILE = f"{NODE_ID}.log"
+
+# Set up logging to both file and console
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -25,10 +42,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configuration from environment (set by run_nodes.py)
-NODE_ID = os.getenv("NODE_ID", "node_a")
-PORT = os.getenv("PORT", "8000")
 
 # Load registry
 REGISTRY_PATH = Path("user_registry.json")
@@ -57,39 +70,53 @@ async def status():
     """Status endpoint for health checks and node ID verification."""
     return {"status": "online", "node_id": NODE_ID}
 
+@app.get("/logs")
+async def get_logs():
+    """Endpoint to fetch logs for this node."""
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "r") as f:
+            # For simplicity, returning the last 100 lines
+            lines = f.readlines()
+            return {"logs": "".join(lines[-100:])}
+    return {"logs": "No logs found."}
+
 @app.post("/login", response_model=LoginResponse)
-async def login(req: LoginRequest):
+async def login(req: LoginRequest, request: Request):
     """
-    Handle user login.
-
-    Checks the global registry for the user's home node. If this node is the
-    home node, validates credentials locally. Otherwise, proxies the request
-     to the authoritative home node.
-
-    Args:
-        req: LoginRequest containing username and password.
-
-    Returns:
-        LoginResponse with a session token and node metadata.
-
-    Raises:
-        HTTPException: 404 if user not found, 401 for invalid password,
-                       501/503 for proxying failures.
+    Handle user login with friendly logging of the authentication path.
     """
-    print(f"\n[{NODE_ID}] Processing login for {req.username}")
+    logger.info("") # Logical separation from previous actions
+    proxy_source = request.headers.get("X-Proxy-Source")
+    server_display_name = "Server A" if NODE_ID == "node_a" else "Server B"
     
+    if proxy_source:
+        source_display = "Server A" if proxy_source == "node_a" else "Server B"
+        logger.info(f"--- 📥 Received Proxied Request ---")
+        logger.info(f"[{server_display_name}] {source_display} is asking me to verify user '{req.username}'.")
+    else:
+        logger.info(f"--- 🔑 New Login Attempt ---")
+        logger.info(f"[{server_display_name}] User '{req.username}' is trying to log in directly through this server.")
+
     # Check if user exists in registry
     if req.username not in REGISTRY["users"]:
+        logger.error(f"[{server_display_name}] User '{req.username}' not found in the global registry.")
         raise HTTPException(status_code=404, detail="User not found in global registry")
     
     user_data = REGISTRY["users"][req.username]
     home_node_id = user_data["home_node"]
+    home_display_name = "Server A" if home_node_id == "node_a" else "Server B"
     
     # Check if this node is the home node
     if home_node_id == NODE_ID:
-        print(f"[{NODE_ID}] Local login detected for {req.username}")
-        # LOCAL LOGIN
+        logger.info(f"[{server_display_name}] User '{req.username}' info is stored locally on this server.")
+        logger.info(f"[{server_display_name}] Validating credentials for '{req.username}'...")
+        
         if req.password == user_data["password"]:
+            if proxy_source:
+                logger.info(f"[{server_display_name}] ✅ Password correct! Sending success back to {source_display}.")
+            else:
+                logger.info(f"[{server_display_name}] ✅ Password correct! Access granted.")
+                
             return LoginResponse(
                 token=str(uuid.uuid4()),
                 home_node=NODE_ID,
@@ -97,14 +124,17 @@ async def login(req: LoginRequest):
                 node_id=NODE_ID
             )
         else:
+            logger.warning(f"[{server_display_name}] ❌ Login failed: Incorrect password for user '{req.username}'.")
             raise HTTPException(status_code=401, detail="Invalid password for home server")
     
     # PROXIED LOGIN
-    print(f"[{NODE_ID}] User {req.username} belongs to {home_node_id}. Proxying request...")
+    logger.info(f"[{server_display_name}] User '{req.username}' info is NOT on this server. It is stored on {home_display_name}.")
+    logger.info(f"[{server_display_name}] 🚀 Forwarding login request to {home_display_name}...")
     
     home_node_config = REGISTRY["nodes"].get(home_node_id)
     if not home_node_config:
-        raise HTTPException(status_code=500, detail=f"Home node {home_node_id} not found in nodes configuration.")
+        logger.error(f"[{server_display_name}] System error: Could not find configuration for {home_display_name}.")
+        raise HTTPException(status_code=500, detail=f"Home node {home_node_id} not found.")
     
     home_url = home_node_config["internal_url"]
     
@@ -113,11 +143,13 @@ async def login(req: LoginRequest):
             resp = await client.post(
                 f"{home_url}/login",
                 json={"username": req.username, "password": req.password},
+                headers={"X-Proxy-Source": NODE_ID},
                 timeout=5.0
             )
             
             if resp.status_code == 200:
-                print(f"[{NODE_ID}] Home node {home_node_id} authorized user {req.username}")
+                logger.info(f"[{server_display_name}] ✅ {home_display_name} confirmed the user is valid.")
+                logger.info(f"[{server_display_name}] Completing proxied login for '{req.username}'.")
                 data = resp.json()
                 return LoginResponse(
                     token=data["token"],
@@ -126,9 +158,9 @@ async def login(req: LoginRequest):
                     node_id=NODE_ID
                 )
             else:
-                print(f"[{NODE_ID}] Home node {home_node_id} rejected login: {resp.text}")
+                logger.warning(f"[{server_display_name}] ❌ {home_display_name} rejected the login: {resp.text}")
                 raise HTTPException(status_code=resp.status_code, detail=f"Home server error: {resp.text}")
                 
     except httpx.RequestError as exc:
-        print(f"[{NODE_ID}] Failed to connect to home node {home_node_id}: {exc}")
+        logger.error(f"[{server_display_name}] 📡 Connection failed: Could not reach {home_display_name}.")
         raise HTTPException(status_code=503, detail=f"Could not connect to home server {home_node_id}")

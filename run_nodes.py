@@ -13,6 +13,12 @@ def run_node(node_id, port):
     )
 
 if __name__ == "__main__":
+    # Clear log files
+    with open("node_a.log", "w") as file:
+        pass  # Doing nothing clears the file
+    with open("node_b.log", "w") as file:
+        pass  # Doing nothing clears the file
+    
     node_a = run_node("node_a", 8000)
     node_b = run_node("node_b", 8001)
 

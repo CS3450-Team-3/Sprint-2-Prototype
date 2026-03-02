@@ -204,11 +204,12 @@ body {
 }
 
 .badge {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 4px;
 }
 
 .session-local {
@@ -219,4 +220,54 @@ body {
 .session-proxied {
   background-color: #fef3c7;
   color: #92400e;
+}
+
+/* Log Viewer Styles */
+.log-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.log-viewer {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  height: 400px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.log-viewer pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.log-actions {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--card-bg);
+}
+
+.secondary-btn {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+  background-color: var(--border-light);
 }
