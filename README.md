@@ -33,8 +33,8 @@ These are the credentials for the example users:
 
 | Username | Password    | Location |
 | -------- | ----------- | -------- |
-| Alice    | password123 | `Node A` |
-| Bob      | password456 | `Node B` |
+| alice    | password123 | `Node A` |
+| bob      | password456 | `Node B` |
 
 ## Tests
 
