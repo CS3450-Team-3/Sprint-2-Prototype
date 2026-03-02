@@ -27,10 +27,15 @@ npm install
 npm run dev
 ```
 
-## Notes
+### Credentials
 
-- The backend expects a virtual environment at `.venv`; create one with `python -m venv .venv` and install dependencies from `backend/requirements.txt` before running.
+These are the credentials for the example users:
 
-## Testing
+| Username | Password    | Location |
+| -------- | ----------- | -------- |
+| Alice    | password123 | `Node A` |
+| Bob      | password456 | `Node B` |
+
+## Tests
 
 Run `python -m pytest -q` from the root folder.
