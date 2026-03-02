@@ -100,7 +100,10 @@ async def login(req: LoginRequest, request: Request):
     # Check if user exists in registry
     if req.username not in REGISTRY["users"]:
         logger.error(f"[{server_display_name}] User '{req.username}' not found in the global registry.")
-        raise HTTPException(status_code=404, detail="User not found in global registry")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"User '{req.username}' does not exist in our network."
+        )
     
     user_data = REGISTRY["users"][req.username]
     home_node_id = user_data["home_node"]
@@ -125,7 +128,14 @@ async def login(req: LoginRequest, request: Request):
             )
         else:
             logger.warning(f"[{server_display_name}] ❌ Login failed: Incorrect password for user '{req.username}'.")
-            raise HTTPException(status_code=401, detail="Invalid password for home server")
+            raise HTTPException(
+                status_code=401, 
+                detail={
+                    "message": f"{server_display_name} found the password to be incorrect.",
+                    "home_node": NODE_ID,
+                    "node_id": NODE_ID
+                }
+            )
     
     # PROXIED LOGIN
     logger.info(f"[{server_display_name}] User '{req.username}' info is NOT on this server. It is stored on {home_display_name}.")
@@ -158,8 +168,18 @@ async def login(req: LoginRequest, request: Request):
                     node_id=NODE_ID
                 )
             else:
-                logger.warning(f"[{server_display_name}] ❌ {home_display_name} rejected the login: {resp.text}")
-                raise HTTPException(status_code=resp.status_code, detail=f"Home server error: {resp.text}")
+                logger.warning(f"[{server_display_name}] ❌ {home_display_name} rejected the login.")
+                try:
+                    error_data = resp.json()
+                    # If it's a structured error from the home server, pass it through but update node_id
+                    if isinstance(error_data.get("detail"), dict):
+                        detail = error_data["detail"]
+                        detail["node_id"] = NODE_ID # The user is connected to THIS node
+                        raise HTTPException(status_code=resp.status_code, detail=detail)
+                except (ValueError, KeyError):
+                    pass
+                
+                raise HTTPException(status_code=resp.status_code, detail=f"{home_display_name} reported an error.")
                 
     except httpx.RequestError as exc:
         logger.error(f"[{server_display_name}] 📡 Connection failed: Could not reach {home_display_name}.")

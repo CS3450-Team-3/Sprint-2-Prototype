@@ -9,13 +9,21 @@ interface LoginResponse {
     node_id: string;
 }
 
+interface LoginError {
+    message: string;
+    home_node: string;
+    node_id: string;
+}
+
 function App() {
-    const [currentTab, setCurrentTab] = useState<"login" | "node_a" | "node_b">("login");
+    const [currentTab, setCurrentTab] = useState<"login" | "node_a" | "node_b">(
+        "login",
+    );
     const [selectedNode, setSelectedNode] = useState("http://localhost:8000");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [result, setResult] = useState<LoginResponse | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | LoginError | null>(null);
     const [loading, setLoading] = useState(false);
     const [logs, setLogs] = useState<string>("");
     const logEndRef = useRef<HTMLDivElement>(null);
@@ -33,13 +41,18 @@ function App() {
                 body: JSON.stringify({ username, password }),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || "Login failed");
+                if (data.detail && typeof data.detail === "object") {
+                    setError(data.detail as LoginError);
+                } else {
+                    setError(data.detail || "Login failed");
+                }
+                return;
             }
 
-            const data: LoginResponse = await response.json();
-            setResult(data);
+            setResult(data as LoginResponse);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -48,7 +61,10 @@ function App() {
     };
 
     const fetchLogs = async (node: "node_a" | "node_b") => {
-        const url = node === "node_a" ? "http://localhost:8000/logs" : "http://localhost:8001/logs";
+        const url =
+            node === "node_a"
+                ? "http://localhost:8000/logs"
+                : "http://localhost:8001/logs";
         try {
             const response = await fetch(url);
             if (response.ok) {
@@ -90,19 +106,19 @@ function App() {
 
             {/* Category Pills - Now acting as Main Tabs */}
             <div className="pill-nav">
-                <button 
+                <button
                     className={`pill ${currentTab === "login" ? "active" : ""}`}
                     onClick={() => setCurrentTab("login")}
                 >
                     🔑 Login Page
                 </button>
-                <button 
+                <button
                     className={`pill ${currentTab === "node_a" ? "active" : ""}`}
                     onClick={() => setCurrentTab("node_a")}
                 >
                     🖥️ Server A
                 </button>
-                <button 
+                <button
                     className={`pill ${currentTab === "node_b" ? "active" : ""}`}
                     onClick={() => setCurrentTab("node_b")}
                 >
@@ -128,7 +144,9 @@ function App() {
 
                             <select
                                 value={selectedNode}
-                                onChange={(e) => setSelectedNode(e.target.value)}
+                                onChange={(e) =>
+                                    setSelectedNode(e.target.value)
+                                }
                                 className="modern-input"
                             >
                                 <option value="http://localhost:8000">
@@ -139,8 +157,8 @@ function App() {
                                 </option>
                             </select>
                             <p className="helper-text">
-                                Testing Tip: Log in as 'bob' on Node A to trigger
-                                proxying.
+                                Testing Tip: Log in as 'bob' on Node A to
+                                trigger proxying.
                             </p>
                         </div>
 
@@ -155,7 +173,9 @@ function App() {
                                         type="text"
                                         placeholder="Username"
                                         value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        onChange={(e) =>
+                                            setUsername(e.target.value)
+                                        }
                                         required
                                         className="modern-input"
                                     />
@@ -165,7 +185,9 @@ function App() {
                                         type="password"
                                         placeholder="Password"
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) =>
+                                            setPassword(e.target.value)
+                                        }
                                         required
                                         className="modern-input"
                                     />
@@ -175,7 +197,9 @@ function App() {
                                     disabled={loading}
                                     className="primary-btn"
                                 >
-                                    {loading ? "Authenticating..." : "Secure Login"}
+                                    {loading
+                                        ? "Authenticating..."
+                                        : "Secure Login"}
                                 </button>
                             </form>
                         </div>
@@ -183,51 +207,75 @@ function App() {
                         {/* Status Messages */}
                         {error && (
                             <div className="alert error">
-                                <strong>Error:</strong> {error}
+                                <h3>Login Failed</h3>
+                                {typeof error === "string" ? (
+                                    <p>{error}</p>
+                                ) : (
+                                    <div className="result-details">
+                                        <p>
+                                            <strong>Error:</strong>{" "}
+                                            {error.message}
+                                        </p>
+                                        <p>
+                                            <strong>Connected Node:</strong>{" "}
+                                            {error.node_id === "node_a"
+                                                ? "Server A"
+                                                : "Server B"}
+                                        </p>
+                                        <p>
+                                            <strong>
+                                                User Info Stored In:
+                                            </strong>{" "}
+                                            {error.home_node === "node_a"
+                                                ? "Server A"
+                                                : "Server B"}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                                        {result && (
-                                            <div className="alert success">
-                                                <h3>Login Successful!</h3>
-                                                <div className="result-details">
-                                                    <p>
-                                                        <strong>Connected Node:</strong>{" "}
-                                                        {result.node_id === "node_a" ? "Server A" : "Server B"}
-                                                    </p>
-                                                                                <p>
-                                                                                    <strong>Home Node:</strong>{" "}
-                                                                                    {result.home_node === "node_a" ? "Server A" : "Server B"}
-                                                                                </p>
-                                                                                <p>
-                                                                                    <strong>User Info Stored In:</strong>{" "}
-                                                                                    {result.home_node === "node_a" ? "Server A" : "Server B"}
-                                                                                </p>
-                                                                                <p>
-                                                                                    <strong>Session Type:</strong>
-                                                    
-                                                        <span
-                                                            className={`badge session-${result.session_type}`}
-                                                        >
-                                                            {result.session_type === "local" 
-                                                                ? `LOCAL (Verified and Connected on ${result.node_id === "node_a" ? "Server A" : "Server B"})`
-                                                                : `PROXIED (Password Verified in ${result.home_node === "node_a" ? "Server A" : "Server B"} -> User is Connected to ${result.node_id === "node_a" ? "Server A" : "Server B"})`
-                                                            }
-                                                        </span>
-                                                    </p>
-                                                    <p className="token-text">
-                                                        <strong>Token:</strong>{" "}
-                                                        <code>{result.token}</code>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                        
+                        {result && (
+                            <div className="alert success">
+                                <h3>Login Successful!</h3>
+                                <div className="result-details">
+                                    <p>
+                                        <strong>Browser Connected To:</strong>{" "}
+                                        {result.node_id === "node_a"
+                                            ? "Server A"
+                                            : "Server B"}
+                                    </p>
+                                    <p>
+                                        <strong>User Info Stored In:</strong>{" "}
+                                        {result.home_node === "node_a"
+                                            ? "Server A"
+                                            : "Server B"}
+                                    </p>
+                                    <p>
+                                        <strong>Session Type:</strong>
+
+                                        <span
+                                            className={`badge session-${result.session_type}`}
+                                        >
+                                            {result.session_type === "local"
+                                                ? `LOCAL (Verified and Connected on ${result.node_id === "node_a" ? "Server A" : "Server B"})`
+                                                : `PROXIED (Password Verified in ${result.home_node === "node_a" ? "Server A" : "Server B"} -> User is Connected to ${result.node_id === "node_a" ? "Server A" : "Server B"})`}
+                                        </span>
+                                    </p>
+                                    <p className="token-text">
+                                        <strong>Token:</strong>{" "}
+                                        <code>{result.token}</code>
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </>
                 ) : (
                     <>
                         <h2 className="section-title">
-                            {currentTab === "node_a" ? "Server A Logs" : "Server B Logs"}
+                            {currentTab === "node_a"
+                                ? "Server A Logs"
+                                : "Server B Logs"}
                         </h2>
                         <div className="card log-card">
                             <div className="log-viewer">
@@ -235,10 +283,19 @@ function App() {
                                 <div ref={logEndRef} />
                             </div>
                             <div className="log-actions">
-                                <button className="secondary-btn" onClick={() => fetchLogs(currentTab as "node_a" | "node_b")}>
+                                <button
+                                    className="secondary-btn"
+                                    onClick={() =>
+                                        fetchLogs(
+                                            currentTab as "node_a" | "node_b",
+                                        )
+                                    }
+                                >
                                     Refresh Now
                                 </button>
-                                <span className="helper-text">Auto-refreshing every 2s</span>
+                                <span className="helper-text">
+                                    Auto-refreshing every 2s
+                                </span>
                             </div>
                         </div>
                     </>
