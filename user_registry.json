@@ -1,0 +1,24 @@
+{
+  "nodes": {
+    "node_a": {
+      "id": "node_a",
+      "url": "http://localhost:8000",
+      "internal_url": "http://localhost:8000"
+    },
+    "node_b": {
+      "id": "node_b",
+      "url": "http://localhost:8001",
+      "internal_url": "http://localhost:8001"
+    }
+  },
+  "users": {
+    "alice": {
+      "password": "password123",
+      "home_node": "node_a"
+    },
+    "bob": {
+      "password": "password456",
+      "home_node": "node_b"
+    }
+  }
+}
