@@ -35,3 +35,6 @@ pyproject.toml
 
 # Ignore continue
 .continue/
+
+# Ignore Python venv
+.venv/

@@ -24,4 +24,5 @@
 ### 2026-03-01: P2P Login Prototype (Track)
 *   **Framework:** FastAPI
 *   **Rationale:** Chosen for the prototype to facilitate rapid development of asynchronous inter-server communication (P2P logic) and to provide interactive API documentation (OpenAPI) for showcasing node-to-node interactions.
+*   **Outcome:** Successfully implemented a multi-node P2P login prototype demonstrating local and proxied authentication.
 *   **Scope:** This deviation applies specifically to the P2P Login Prototype track.

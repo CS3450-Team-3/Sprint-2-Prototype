@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
+import './App.css'
 
+/** Schema for successful login response from backend nodes. */
 interface LoginResponse {
   token: string
   home_node: string
@@ -7,6 +9,10 @@ interface LoginResponse {
   node_id: string
 }
 
+/** 
+ * Root component for the P2P Login Prototype frontend.
+ * Provides a node selector and a login form to test cross-node authentication.
+ */
 function App() {
   const [selectedNode, setSelectedNode] = useState('http://localhost:8000')
   const [username, setUsername] = useState('')
@@ -15,6 +21,11 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  /**
+   * Submits login credentials to the selected server node.
+   *
+   * @param {React.FormEvent} e - Form submission event.
+   */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -43,15 +54,15 @@ function App() {
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <div className="app-container">
       <h1>P2P Login Prototype</h1>
       
-      <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ccc' }}>
+      <div className="section">
         <h3>1. Select Server Node</h3>
         <select 
           value={selectedNode} 
           onChange={(e) => setSelectedNode(e.target.value)}
-          style={{ padding: '8px', width: '300px' }}
+          className="select-node"
         >
           <option value="http://localhost:8000">Node A (Home for Alice) - Port 8000</option>
           <option value="http://localhost:8001">Node B (Home for Bob) - Port 8001</option>
@@ -59,10 +70,10 @@ function App() {
         <p><small>Testing Tip: Log in as 'bob' on Node A to trigger proxying.</small></p>
       </div>
 
-      <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ccc' }}>
+      <div className="section">
         <h3>2. Login</h3>
         <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '10px' }}>
+          <div className="form-group">
             <label>Username: </label>
             <input 
               type="text" 
@@ -71,7 +82,7 @@ function App() {
               required 
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
+          <div className="form-group">
             <label>Password: </label>
             <input 
               type="password" 
@@ -80,28 +91,25 @@ function App() {
               required 
             />
           </div>
-          <button type="submit" disabled={loading} style={{ padding: '10px 20px' }}>
+          <button type="submit" disabled={loading} className="login-button">
             {loading ? 'Authenticating...' : 'Login'}
           </button>
         </form>
       </div>
 
       {error && (
-        <div style={{ color: 'red', padding: '10px', backgroundColor: '#ffdada', marginBottom: '20px' }}>
+        <div className="error-container">
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {result && (
-        <div style={{ padding: '15px', backgroundColor: '#e7f3ff', border: '1px solid #2196f3' }}>
+        <div className="result-container">
           <h3>Login Successful!</h3>
           <p><strong>Connected Node:</strong> {result.node_id}</p>
           <p><strong>Home Node:</strong> {result.home_node}</p>
-          <p><strong>Session Type:</strong> <span style={{ 
-            color: result.session_type === 'local' ? 'green' : 'orange',
-            fontWeight: 'bold',
-            textTransform: 'uppercase'
-          }}>{result.session_type}</span></p>
+          <p><strong>Session Type:</strong> <span className={`session-type session-${result.session_type}`}>
+            {result.session_type}</span></p>
           <p><strong>Access Token:</strong> <code>{result.token}</code></p>
           <p><small>Check backend terminal for inter-server logs.</small></p>
         </div>
@@ -109,5 +117,7 @@ function App() {
     </div>
   )
 }
+
+export default App
 
 export default App

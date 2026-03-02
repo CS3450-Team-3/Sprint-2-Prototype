@@ -1,3 +1,10 @@
+"""
+P2P Login Prototype Backend
+
+This module implements a FastAPI server that handles local authentication
+and proxies login requests to other nodes in a peer-to-peer network.
+"""
+
 import os
 import json
 import uuid
@@ -19,10 +26,12 @@ with open(REGISTRY_PATH, "r") as f:
     REGISTRY = json.load(f)
 
 class LoginRequest(BaseModel):
+    """Schema for login request credentials."""
     username: str
     password: str
 
 class LoginResponse(BaseModel):
+    """Schema for successful login response including session metadata."""
     token: str
     home_node: str
     session_type: str # "local" or "proxied"
@@ -30,14 +39,33 @@ class LoginResponse(BaseModel):
 
 @app.get("/")
 async def root():
+    """Root endpoint for node identification."""
     return {"message": f"P2P Login Prototype - {NODE_ID} (Port {PORT})"}
 
 @app.get("/status")
 async def status():
+    """Status endpoint for health checks and node ID verification."""
     return {"status": "online", "node_id": NODE_ID}
 
 @app.post("/login", response_model=LoginResponse)
 async def login(req: LoginRequest):
+    """
+    Handle user login.
+
+    Checks the global registry for the user's home node. If this node is the
+    home node, validates credentials locally. Otherwise, proxies the request
+     to the authoritative home node.
+
+    Args:
+        req: LoginRequest containing username and password.
+
+    Returns:
+        LoginResponse with a session token and node metadata.
+
+    Raises:
+        HTTPException: 404 if user not found, 401 for invalid password,
+                       501/503 for proxying failures.
+    """
     print(f"[{NODE_ID}] Processing login for {req.username}")
     
     # Check if user exists in registry

@@ -1,0 +1,49 @@
+.app-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+}
+
+.select-node {
+  padding: 8px;
+  width: 300px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.login-button {
+  padding: 10px 20px;
+}
+
+.error-container {
+  color: red;
+  padding: 10px;
+  background-color: #ffdada;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  padding: 15px;
+  background-color: #e7f3ff;
+  border: 1px solid #2196f3;
+}
+
+.session-type {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.session-local {
+  color: green;
+}
+
+.session-proxied {
+  color: orange;
+}
