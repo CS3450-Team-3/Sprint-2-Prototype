@@ -76,7 +76,7 @@ async def login(req: LoginRequest):
         HTTPException: 404 if user not found, 401 for invalid password,
                        501/503 for proxying failures.
     """
-    print(f"[{NODE_ID}] Processing login for {req.username}")
+    print(f"\n[{NODE_ID}] Processing login for {req.username}")
     
     # Check if user exists in registry
     if req.username not in REGISTRY["users"]:
