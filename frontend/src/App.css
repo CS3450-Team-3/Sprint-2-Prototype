@@ -1,49 +1,222 @@
-.app-container {
+:root {
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --accent-purple: #9c27b0;
+  --accent-magenta: #e91e63;
+  --btn-black: #0f1115;
+  --border-light: #e5e7eb;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+}
+
+.app-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-purple);
+}
+
+/* Pill Navigation */
+.pill-nav {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  overflow-x: auto;
+  background-color: var(--card-bg);
+}
+
+.pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: var(--bg-color);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.pill.active {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-magenta));
+  color: white;
+}
+
+/* Main Content & Cards */
+.main-content {
   padding: 20px;
-  font-family: sans-serif;
 }
 
-.section {
+.section-title {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  margin-top: 0;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
   margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-light);
 }
 
-.select-node {
-  padding: 8px;
-  width: 300px;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
 }
 
-.form-group {
-  margin-bottom: 10px;
+.card-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
 }
 
-.login-button {
-  padding: 10px 20px;
+.price-tag {
+  color: var(--accent-purple);
+  font-weight: 700;
 }
 
-.error-container {
-  color: red;
-  padding: 10px;
-  background-color: #ffdada;
+.card-subtitle {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.helper-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* Forms & Inputs */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modern-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-color);
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modern-input:focus {
+  border-color: var(--accent-purple);
+  background-color: var(--card-bg);
+}
+
+/* Buttons */
+.primary-btn {
+  background-color: var(--btn-black);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: #2a2d35;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Alerts */
+.alert {
+  padding: 16px;
+  border-radius: 12px;
   margin-bottom: 20px;
 }
 
-.result-container {
-  padding: 15px;
-  background-color: #e7f3ff;
-  border: 1px solid #2196f3;
+.error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
 }
 
-.session-type {
+.success {
+  background-color: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+
+.success h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.result-details p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+.token-text code {
+  background: rgba(0,0,0,0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   text-transform: uppercase;
 }
 
 .session-local {
-  color: green;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .session-proxied {
-  color: orange;
+  background-color: #fef3c7;
+  color: #92400e;
 }
