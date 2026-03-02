@@ -195,12 +195,17 @@ function App() {
                                                         <strong>Connected Node:</strong>{" "}
                                                         {result.node_id === "node_a" ? "Server A" : "Server B"}
                                                     </p>
-                                                    <p>
-                                                        <strong>Home Node:</strong>{" "}
-                                                        {result.home_node === "node_a" ? "Server A" : "Server B"}
-                                                    </p>
-                                                    <p>
-                                                        <strong>Session Type:</strong>
+                                                                                <p>
+                                                                                    <strong>Home Node:</strong>{" "}
+                                                                                    {result.home_node === "node_a" ? "Server A" : "Server B"}
+                                                                                </p>
+                                                                                <p>
+                                                                                    <strong>User Info Stored In:</strong>{" "}
+                                                                                    {result.home_node === "node_a" ? "Server A" : "Server B"}
+                                                                                </p>
+                                                                                <p>
+                                                                                    <strong>Session Type:</strong>
+                                                    
                                                         <span
                                                             className={`badge session-${result.session_type}`}
                                                         >
