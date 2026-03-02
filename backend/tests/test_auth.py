@@ -29,3 +29,8 @@ def test_invalid_user():
         registry = json.load(f)
     
     assert "charlie" not in registry["users"]
+
+def test_inter_server_logic_placeholder():
+    # Since we can't run multiple servers easily, this is a conceptual test
+    # for the logic we'll add to main.py
+    pass
